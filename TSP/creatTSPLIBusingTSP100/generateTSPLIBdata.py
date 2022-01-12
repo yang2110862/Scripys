@@ -1,20 +1,23 @@
 # Program:
 #   generate data in TSPLIB format using TSP100
 # History:
-#   2022/1/11   yxl   First release
+#   2022/1/12   yxl   Second release
 # Reference
 #   ../data_generator.py
+# Change:
+#   add argv[]
 
 import numpy as np
+import sys
 from scipy.spatial.distance import pdist
 from scipy.spatial.distance import squareform
-
-def convert_tsplib(tspinstance, num_node = 20, num_instance = 0):
+def convert_tsplib(tspinstance, num_node = 20, num_instance = 0, scale = 1):
     derivate = tspinstance.split(' ')
     opt_sol = np.array(derivate[2*num_node+1:-1], dtype = np.int32) - 1 
     buff = np.zeros(shape=(num_node, 2), dtype = np.float64)
     buff[:, 0] = np.array(derivate[0:2*num_node:2], dtype = np.float64)
     buff[:, 1] = np.array(derivate[1:2*num_node:2], dtype = np.float64)
+    buff = np.array(buff * scale, dtype = np.int64)
     with open('/home/seanyang/Desktop/git/LKH3/LKH-3.0.7/data/tsp{}/uniform{}.tsp'.format(num_node, num_instance), 'w') as f1:
         f1.write('NAME : uniform{}\n'.format(num_node))
         f1.write('COMMENT : {}-city problem\n'.format(num_node))
@@ -33,10 +36,13 @@ def convert_tsplib(tspinstance, num_node = 20, num_instance = 0):
         f2.write('PATCHING_A = 2\n')
         f2.write('OUTPUT_TOUR_FILE = /home/seanyang/Desktop/git/LKH3/LKH-3.0.7/results/tsp{}/uniform{}.opt\n'.format(num_node, num_instance))
 if __name__ == "__main__":
-    num_node = 100
+    # num_node = 100
+    num_node = int(sys.argv[1])
+    num = int(sys.argv[2])
     filename = f"tsp{num_node}_test_concorde.txt"
     f = open(filename)
-    for num_instance in range(1,10001):
+    scale = 10000
+    for num_instance in range(0, num):
         tspinstance = f.readline()
-        convert_tsplib(tspinstance, num_node, num_instance)
+        convert_tsplib(tspinstance, num_node, num_instance, scale)
         print('complete th%d instance' %(num_instance))
